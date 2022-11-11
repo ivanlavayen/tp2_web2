@@ -6,13 +6,13 @@ require_once './app/views/apiView.php';
 class librosApiController {
     private $model;
     private $view;
-  //  private $generosModel;
+   // private $generosModel;
     private $data;
 
     public function __construct() {
         $this->model = new LibrosApiModel();
         $this->view = new ApiView();
-    //    $this->generosModel=new GenerosModel();
+       // $this->generosModel=new GenerosModel();
         
         // lee el body del request
         $this->data = file_get_contents("php://input");
@@ -42,12 +42,14 @@ class librosApiController {
 
         $titulo= $this->model->get($id);
         if (!empty($titulo)) {
+                
                 $this->model->delete($id);
-                $this->view->response("eliminado exitosamente", 204);  
+                $this->view->response("eliminado exitosamente", 204); 
+                 
         } 
         else 
             {
-              $this->view->response("el libro con el id= $id no existe", 404);
+              $this->view->response("el libro con el id= $id que desea borrar no existe", 404);
            }
     }       
 
@@ -117,8 +119,8 @@ class librosApiController {
     }
 
     private function checkIdGenero($genero){
-        $generos = $this->modelTiposInsumos->get($genero);
-        if($typesOfSupplies == null){
+        $generos = $this->librosApiModel->get($genero);
+        if($genero == null){
             return true;
         }
         else{
@@ -130,15 +132,15 @@ class librosApiController {
      * Funcion que arroja un error que el id tipo de insumo es incorrecto.
      */
     private function errorIdGeneroInsert(){
-        $this->view->response("El id_tipo_insumo ingresado no es valido.", 400);
+        $this->view->response("El id del genero ingresado no es valido.", 400);
     }
 
     /**
      * Funcion que arroja un error que el id de insumo es incorrecto.
      */
-    private function errorIdSupplieInsert($id){
-        $this->view->response("El insumo con el id= $id no existe", 404);
-    }
+    //private function errorIdSupplieInsert($id){
+      //  $this->view->response("El genero con el id= $id no existe", 404);
+   // }
 
     /**
      * Funcion que muestra un mensje cuando no hya registros para mostrar
@@ -148,7 +150,7 @@ class librosApiController {
     } 
 
     /**
-     * Funcion que ordena por uno de los campos de la tabla Insumos y los ordena ascendente o descendentemente.
+     * Funcion que ordena por uno de los campos de la tabla libros y los ordena ascendente o descendentemente.
      */
     private function getBooksSortByAndOrder($sortBy, $order){
         if (($sortBy == 'obra' || $sortBy == 'autor' || $sortBy == 'id_genero' || $sortBy == 'precio') && ($order == 'asc' || $order == 'desc')) {
@@ -164,12 +166,12 @@ class librosApiController {
     }
 
     /**
-     * Funcion que filtra los insumos por Tipo de Insumo.
+     * Funcion que filtra los libros por genero.
      */
     private function getBooksForGenero($genero){
-        $supplies = $this->modelInsumos->getBooksForGenero($genero);
-        if (count($supplies) > 0) {
-            $this->view->response($supplies);
+        $genero = $this->model->getBooksForGenero($genero);
+        if (count($genero) > 0) {
+            $this->view->response($genero);
         } else {
             $this->msgNotRegister();
         } 
@@ -178,8 +180,8 @@ class librosApiController {
     /**
      * Funcion que filtra los insumos por unidad de medida.
      */
-    private function getBooksForAuthor ($autores){
-        $libros = $this->model->getBooksForAuthor($autores);
+    private function getBooksForAuthor ($autor){
+        $libros = $this->model->getBooksForAuthor($autor);
         if (count($libros) > 0) {
             $this->view->response($libros);
         } else {
