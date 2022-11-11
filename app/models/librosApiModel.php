@@ -100,3 +100,4 @@ class LibrosApiModel {
         return $query->fetchAll(PDO::FETCH_OBJ);
     }
 }
+//para subir
