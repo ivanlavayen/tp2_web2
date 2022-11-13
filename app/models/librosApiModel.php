@@ -49,11 +49,6 @@ class LibrosApiModel {
         $query->execute([$id]);
     } 
 
-
-
-
-
-
     public function getBooksOrder($attribute, $order){
         $query = $this->db->prepare("SELECT * FROM titulos ORDER BY $attribute $order");
         $query->execute();
@@ -65,8 +60,8 @@ class LibrosApiModel {
      */
     public function getBooksForGenero($genero){
         $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        $query = $this->db->prepare("SELECT id, genero FROM genero WHERE id LIKE ?");
-        $query->execute(["%$genero%"]);
+        $query = $this->db->prepare("SELECT id, obra, autor, precio, id_genero FROM titulos WHERE id_genero = ?");
+        $query->execute([$genero]);
         return $query->fetchAll(PDO::FETCH_OBJ);
     }
 
@@ -85,8 +80,15 @@ class LibrosApiModel {
      */
     public function getBooksForAuthor($autores){
         $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        $query = $this->db->prepare("SELECT id_insumo, insumo, unidad_medida, id_tipo_insumo FROM insumo WHERE unidad_medida LIKE ?");
+        $query = $this->db->prepare("SELECT id, obra, autor, precio, id_genero FROM titulos WHERE autor LIKE ?");
         $query->execute(["%$autores%"]);
+        return $query->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function getBooksForPrice($price){
+        $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $query = $this->db->prepare("SELECT id, obra, autor, precio, id_genero FROM titulos WHERE precio = ?");
+        $query->execute([$price]);
         return $query->fetchAll(PDO::FETCH_OBJ);
     }
 

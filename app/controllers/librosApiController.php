@@ -1,18 +1,17 @@
 <?php
 require_once './app/models/librosApiModel.php';
 require_once './app/views/apiView.php';
-//require_once './app/models/generosApiModel.php';
+
 
 class librosApiController {
     private $model;
     private $view;
-  //  private $generosModel;
     private $data;
 
     public function __construct() {
         $this->model = new LibrosApiModel();
         $this->view = new ApiView();
-    //    $this->generosModel=new GenerosModel();
+    ;
         
         // lee el body del request
         $this->data = file_get_contents("php://input");
@@ -39,31 +38,47 @@ class librosApiController {
 
     public function deleteLibro($params = null) {
         $id = $params[':ID'];
-
         $titulo= $this->model->get($id);
+
         if (!empty($titulo)) {
                 $this->model->delete($id);
-                $this->view->response("eliminado exitosamente", 204);  
+                $this->view->response("el libro con el id= $id fue eliminado", 200);  //si pongo 204 no aparece el mensaje en el postman!!!!
         } 
-        else 
-            {
+        else {
               $this->view->response("el libro con el id= $id no existe", 404);
-           }
+        }
     }       
 
     public function insertLibro($params = null) {
+        
         $titulo = $this->getData();
-        $obra = $titulo->obra;
-        $autor = $titulo->autor;
-        $precio = $titulo->precio;
-        $genero = $titulo->id_genero;
+        if (
+            (!array_key_exists("obra",$titulo)) || 
+            (!array_key_exists("autor",$titulo)) || 
+            (!array_key_exists("precio",$titulo)) || 
+            (!array_key_exists("id_genero",$titulo)) ){
+                $this->view->response("Complete los datos", 400);
+        }
+        
 
-        if ((empty($obra)) || (empty($autor)) || (empty($precio)) || (empty($genero))) {
-            $this->view->response("Complete los datos", 400);
-        } 
-        else{   
-            $id = $this->model->insert($obra, $autor, $precio, $genero);
-            $this->view->response("el libro con el id= $id se inserto", 201);
+        else {
+                $obra = $titulo->obra;
+                $autor = $titulo->autor;
+                $precio = $titulo->precio;
+                $genero = $titulo->id_genero;
+                if(
+                (empty($obra))||
+                (empty($autor))||
+                (empty($precio))||
+                (empty($genero)))
+                {
+                    $this->view->response("Datos incorrectos, revise", 400);
+
+                }
+                 else {
+                $id = $this->model->insert($obra, $autor, $precio, $genero);
+                 $this->view->response("el libro con el id= $id se inserto", 201);}
+
         }
     }
 
@@ -116,45 +131,20 @@ class librosApiController {
         }
     }
 
-    private function checkIdGenero($genero){
-        $generos = $this->modelTiposInsumos->get($genero);
-        if($typesOfSupplies == null){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-
-    /**
-     * Funcion que arroja un error que el id tipo de insumo es incorrecto.
-     */
-    private function errorIdGeneroInsert(){
-        $this->view->response("El id_tipo_insumo ingresado no es valido.", 400);
-    }
-
-    /**
-     * Funcion que arroja un error que el id de insumo es incorrecto.
-     */
-    private function errorIdSupplieInsert($id){
-        $this->view->response("El insumo con el id= $id no existe", 404);
-    }
-
-    /**
-     * Funcion que muestra un mensje cuando no hya registros para mostrar
-     */
+  
+  
     private function msgNotRegister(){
         $this->view->response("No hay registros para mostrar", 404);
     } 
-
+    
     /**
      * Funcion que ordena por uno de los campos de la tabla Insumos y los ordena ascendente o descendentemente.
      */
     private function getBooksSortByAndOrder($sortBy, $order){
         if (($sortBy == 'obra' || $sortBy == 'autor' || $sortBy == 'id_genero' || $sortBy == 'precio') && ($order == 'asc' || $order == 'desc')) {
-            $supplies = $this->LibrosApiModel->getBooksOrder($sortBy, $order);
+            $supplies = $this->model->getBooksOrder($sortBy, $order);
             if (count($supplies) > 0) {
-                $this->view->response($supplies);
+                $this->view->response($supplies, 200);
             } else {
                 $this->msgNotRegister();
             }
@@ -167,7 +157,7 @@ class librosApiController {
      * Funcion que filtra los insumos por Tipo de Insumo.
      */
     private function getBooksForGenero($genero){
-        $supplies = $this->modelInsumos->getBooksForGenero($genero);
+        $supplies = $this->model->getBooksForGenero($genero);
         if (count($supplies) > 0) {
             $this->view->response($supplies);
         } else {
@@ -188,7 +178,7 @@ class librosApiController {
     }
 
     /**
-     * Funcion que filtra los insumos por nombre de insumo.
+     * Funcion que filtra los libors por nombre de libro.
      */
     private function getBooksForName($libro){
         $libros = $this->model->getBooksForName($libro);
@@ -198,6 +188,16 @@ class librosApiController {
             $this->msgNotRegister();
         }
     }
+
+    private function getBooksForPrice($price){
+        $libros = $this->model->getBooksForPrice($price);
+        if (count($libros) > 0) {
+            $this->view->response($libros, 200);
+        } else {
+            $this->msgNotRegister();
+        }
+    }
+    
 
     /**
      * Funcion que permite la paginacion de los datos, pasando por parametro, desde que registro comenzar y la cantidad de registros.  
