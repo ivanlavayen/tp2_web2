@@ -9,7 +9,7 @@ class LibrosApiModel {
     }
 
     /**
-     * Devuelve la lista de tareas completa.
+     * Devuelve la lista completa.
      */
     public function getAll() {
         // 1. abro conexión a la DB
@@ -56,7 +56,7 @@ class LibrosApiModel {
     }
 
     /**
-     * Filtra los insumos segun el tipo de insumo que se pase por parametro
+     * Filtra por el genero  que se pase por parametro
      */
     public function getBooksForGenero($genero){
         $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -66,7 +66,7 @@ class LibrosApiModel {
     }
 
     /**
-     * Filtra los insumos segun el insumo (nombre) que se pase por parametro
+     * Filtra los libros por nombre de obra que se pase por parametro
      */
     public function getBooksForName($name) {
         $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -76,12 +76,24 @@ class LibrosApiModel {
     }
 
     /**
-     * Filtra los insumos segun la unidad de medida que se pase por parametro
+     * Filtra los libros segun autor que se pase por parametro
      */
-    public function getBooksForAuthor($autores){
+    public function getBooksForAuthor($autor){
         $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+<<<<<<< HEAD
         $query = $this->db->prepare("SELECT id, obra, autor, precio, id_genero FROM titulos WHERE autor LIKE ?");
         $query->execute(["%$autores%"]);
+=======
+        $query = $this->db->prepare("SELECT id,obra, autor, precio, id_genero FROM titulos WHERE autor LIKE ?");
+        $query->execute(["%$autor%"]);
+        return $query->fetchAll(PDO::FETCH_OBJ);
+    }
+     //filtra por precio
+    public function getBooksForPrice($precio){
+        $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $query = $this->db->prepare("SELECT id,obra, autor, precio, id_genero FROM titulos WHERE precio LIKE ?");
+        $query->execute(["%$precio%"]);
+>>>>>>> d798286ddaa28c405ee9815847e5603a2c4a0e09
         return $query->fetchAll(PDO::FETCH_OBJ);
     }
 
@@ -97,7 +109,7 @@ class LibrosApiModel {
      */
     public function getPagination($start, $records){
         $this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        $query = $this->db->prepare("SELECT id_insumo, insumo, unidad_medida, id_tipo_insumo FROM insumo LIMIT ?, ?");
+        $query = $this->db->prepare("SELECT id,obra, autor, precio, id_genero FROM titulos LIMIT ?, ?");
         $query->execute([$start, $records]);
         return $query->fetchAll(PDO::FETCH_OBJ);
     }
